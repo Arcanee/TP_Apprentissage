@@ -19,7 +19,7 @@ from sklearn import metrics
 # Exemple :  k-Means Clustering
 
 path = './artificial/'
-name="cluto-t8-8k.arff"
+name="R15.arff"
 
 #path_out = './fig/'
 databrut = arff.loadarff(open(path+str(name), 'r'))
@@ -43,7 +43,6 @@ plt.show()
 
 y_metrique = []
 x_metrique = []
-continuer = 1
 
 N = int(input("Nb max de clusters à tester :\n"))
 tps1 = time.time()
@@ -54,7 +53,7 @@ for k in range (2, N+1):
     # Run clustering method for a given number of clusters
     print("------------------------------------------------------")
     print("Appel KMeans pour une valeur de k fixée")
-    model = cluster.KMeans(n_clusters=k, init='k-means++', n_init=1)
+    model = cluster.MiniBatchKMeans(n_clusters=k, init='k-means++', n_init=1)
     model.fit(datanp)
     labels = model.labels_
     # informations sur le clustering obtenu

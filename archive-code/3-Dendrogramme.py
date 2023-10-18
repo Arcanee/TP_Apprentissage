@@ -10,10 +10,10 @@ from scipy.cluster.hierarchy import dendrogram
 ##################################################################
 # Exemple :  Dendrogramme and Agglomerative Clustering
 
-
+linkageMode = 'single'
 
 path = './artificial/'
-name="xclara.arff"
+name="3-spiral.arff"
 
 #path_out = './fig/'
 databrut = arff.loadarff(open(path+str(name), 'r'))
@@ -63,7 +63,7 @@ def plot_dendrogram(model, **kwargs):
 
 
 # setting distance_threshold=0 ensures we compute the full tree.
-model = cluster.AgglomerativeClustering(distance_threshold=0, linkage='average', n_clusters=None)
+model = cluster.AgglomerativeClustering(distance_threshold=0, linkage=linkageMode, n_clusters=None)
 
 model = model.fit(datanp)
 plt.figure(figsize=(12, 12))
@@ -81,7 +81,7 @@ plt.show()
 # 
 tps1 = time.time()
 seuil_dist = 10
-model = cluster.AgglomerativeClustering(distance_threshold=seuil_dist, linkage='average', n_clusters=None)
+model = cluster.AgglomerativeClustering(distance_threshold=seuil_dist, linkage=linkageMode, n_clusters=None)
 model = model.fit(datanp)
 tps2 = time.time()
 labels = model.labels_
@@ -100,7 +100,7 @@ print("nb clusters =",k,", nb feuilles = ", leaves, " runtime = ", round((tps2 -
 ###
 k=3
 tps1 = time.time()
-model = cluster.AgglomerativeClustering(linkage='average', n_clusters=k)
+model = cluster.AgglomerativeClustering(linkage=linkageMode, n_clusters=k)
 model = model.fit(datanp)
 tps2 = time.time()
 labels = model.labels_

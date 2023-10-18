@@ -5,12 +5,37 @@ import time
 from scipy.io import arff
 from sklearn import cluster
 from sklearn import metrics
+from scipy.cluster.hierarchy import dendrogram
+
+
+def plot_dendrogram(model, **kwargs):
+    # Create linkage matrix and then plot the dendrogram
+
+    # create the counts of samples under each node
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
+        current_count = 0
+        for child_idx in merge:
+            if child_idx < n_samples:
+                current_count += 1  # leaf node
+            else:
+                current_count += counts[child_idx - n_samples]
+        counts[i] = current_count
+
+    linkage_matrix = np.column_stack(
+        [model.children_, model.distances_, counts]
+    ).astype(float)
+
+    # Plot the corresponding dendrogram
+    dendrogram(linkage_matrix) #, **kwargs)
+
 
 
 ###################################################################
 # Exemple : Agglomerative Clustering
 
-
+linkageMethod = 'average'
 path = './artificial/'
 name="xclara.arff"
 
@@ -37,45 +62,87 @@ plt.show()
 
 
 
-### FIXER la distance
+y_metrique_dist = []
+x_metrique_dist = []
+y_metrique_clust = []
+x_metrique_clust = []
+
+
+### ESTIMER la meilleure distance (5-10-15-20)
 # 
 tps1 = time.time()
-seuil_dist=10
-model = cluster.AgglomerativeClustering(distance_threshold=seuil_dist, linkage='average', n_clusters=None)
-model = model.fit(datanp)
+for seuil_dist in np.arange(1,600, 50):
+    x_metrique_dist.append(seuil_dist)
+
+    model = cluster.AgglomerativeClustering(distance_threshold=seuil_dist, linkage=linkageMethod, n_clusters=None)
+    model = model.fit(datanp)
+    labels = model.labels_
+
+    if model.n_clusters_>1:
+        coef_silhouette = metrics.silhouette_score(datanp, labels)
+    else:
+        coef_silhouette=0
+    y_metrique_dist.append(coef_silhouette)
+    
 tps2 = time.time()
+
+plt.scatter(x_metrique_dist, y_metrique_dist, marker="x", color="red")
+plt.plot(x_metrique_dist, y_metrique_dist)
+plt.show()
+
+bestDist = x_metrique_dist[np.argmax(y_metrique_dist)]
+print("Solution optimale d'après silhouette :", bestDist, "(dist)")
+
+model = cluster.AgglomerativeClustering(distance_threshold=bestDist, linkage=linkageMethod, n_clusters=None)
+model = model.fit(datanp)
 labels = model.labels_
-# Nb iteration of this method
-#iteration = model.n_iter_
+plot_dendrogram(model)
+plt.show()
+
 k = model.n_clusters_
 leaves=model.n_leaves_
 plt.scatter(f0, f1, c=labels, s=8)
-plt.title("Clustering agglomératif (average, distance_treshold= "+str(seuil_dist)+") "+str(name))
+plt.title("Clustering agglomératif (average, distance_treshold= "+str(bestDist)+") "+str(name))
 plt.show()
 print("nb clusters =",k,", nb feuilles = ", leaves, " runtime = ", round((tps2 - tps1)*1000,2),"ms")
 
 
-###
-# FIXER le nombre de clusters
-###
-k=4
-tps1 = time.time()
-model = cluster.AgglomerativeClustering(linkage='average', n_clusters=k)
-model = model.fit(datanp)
-tps2 = time.time()
-labels = model.labels_
-# Nb iteration of this method
-#iteration = model.n_iter_
-kres = model.n_clusters_
-leaves=model.n_leaves_
-#print(labels)
-#print(kres)
 
+
+###
+# ESTIMER le meilleur nombre de clusters (2-3-4-5-6-7-8-9-10-11-12-13-14-15)
+###
+tps3 = time.time()
+for n_clust in np.arange(2,20,1):
+    x_metrique_clust.append(n_clust)
+
+    model = cluster.AgglomerativeClustering(linkage=linkageMethod, n_clusters=n_clust)
+    model = model.fit(datanp)
+    labels = model.labels_
+
+    coef_silhouette = metrics.silhouette_score(datanp, labels)
+    y_metrique_clust.append(coef_silhouette)
+    
+tps4 = time.time()
+
+plt.scatter(x_metrique_clust, y_metrique_clust, marker="x", color="red")
+plt.plot(x_metrique_clust, y_metrique_clust)
+plt.show()
+
+bestNClust = x_metrique_clust[np.argmax(y_metrique_clust)]
+print("Solution optimale d'après silhouette :", bestNClust, "clusters")
+
+model = cluster.AgglomerativeClustering(linkage=linkageMethod, n_clusters=bestNClust)
+model = model.fit(datanp)
+labels = model.labels_
+
+k = model.n_clusters_
+leaves=model.n_leaves_
 plt.scatter(f0, f1, c=labels, s=8)
 plt.title("Clustering agglomératif (average, n_cluster= "+str(k)+") "+str(name))
 plt.show()
-print("nb clusters =",kres,", nb feuilles = ", leaves, " runtime = ", round((tps2 - tps1)*1000,2),"ms")
+print("nb clusters =",bestNClust,", nb feuilles = ", leaves, " runtime = ", round((tps2 - tps1)*1000,2),"ms")
 
-
+print("\n\n TPS TOTAL =", tps2-tps1+tps4-tps3)
 
 #######################################################################
