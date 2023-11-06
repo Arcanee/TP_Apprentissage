@@ -8,8 +8,10 @@ from sklearn import metrics
 from sklearn.neighbors import NearestNeighbors
 from sklearn import preprocessing
 
+import hdbscan
+
 ##################################################################
-# Exemple : DBSCAN Clustering
+# Exemple : HDBSCAN Clustering
 
 
 path = './artificial/'
@@ -38,50 +40,31 @@ plt.title("Donnees initiales : "+ str(name))
 plt.show()
 
 
-# Distances aux k plus proches voisins
-# Donnees dans X
-k = 15
-neigh = NearestNeighbors ( n_neighbors = k )
-neigh.fit(datanp)
-distances,indices=neigh.kneighbors(datanp)
-# distance moyenne sur les k plus proches voisins
-# en retirant le point " origine "
-newDistances=np.asarray([np.average(distances[i][1:])for i in range(0, distances.shape[0])])
-# trier par ordre croissant
-distancetrie=np.sort(newDistances)
-plt.title("Plusprochesvoisins"+str(k))
-plt.plot(distancetrie)
-plt.show()
-
-
-
 # Run DBSCAN clustering method 
 # for a given number of parameters eps and min_samples
 # 
 print("------------------------------------------------------")
 print("Appel DBSCAN (1) ... ")
+tps1 = time.time()
 
-while(1):
-    epsilon = float(input("Epsilon :\n")) 
-    tps1 = time.time()
-    min_pts= k #5   # 10
-    model = cluster.DBSCAN(eps=epsilon, min_samples=min_pts)
-    model.fit(datanp)
-    tps2 = time.time()
-    labels = model.labels_
+minClustSize = 15
+minSamples = 5
+model = hdbscan.HDBSCAN(min_cluster_size=minClustSize, min_samples=minSamples)
+model.fit(datanp)
+tps2 = time.time()
+labels = model.labels_
 
-    # Number of clusters in labels, ignoring noise if present.
-    n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
-    n_noise = list(labels).count(-1)
-    print('Number of clusters: %d' % n_clusters)
-    print('Number of noise points: %d' % n_noise)
+# Number of clusters in labels, ignoring noise if present.
+n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+n_noise = list(labels).count(-1)
+print('Number of clusters: %d' % n_clusters)
+print('Number of noise points: %d' % n_noise)
 
-    plt.scatter(f0, f1, c=labels, s=8)
-    plt.title("Données après clustering DBSCAN (1) - Epsilon= "+str(epsilon)+" MinPts= "+str(min_pts))
-    print("\n\n TPS TOTAL =", tps2-tps1, "s")
-    plt.show()
+plt.scatter(f0, f1, c=labels, s=8)
+plt.title(f"Données après clustering HDBSCAN - min_cluster_size={model.min_cluster_size}, min_samples={model.min_samples}")
+plt.show()
 
-
+print("\n\n TPS TOTAL =", tps2-tps1, "s")
 ####################################################
 # Standardisation des donnees
 

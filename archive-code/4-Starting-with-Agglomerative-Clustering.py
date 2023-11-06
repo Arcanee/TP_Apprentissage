@@ -141,8 +141,8 @@ leaves=model.n_leaves_
 plt.scatter(f0, f1, c=labels, s=8)
 plt.title("Clustering agglomératif (average, n_cluster= "+str(k)+") "+str(name))
 plt.show()
-print("nb clusters =",bestNClust,", nb feuilles = ", leaves, " runtime = ", round((tps2 - tps1)*1000,2),"ms")
+print("nb clusters =",bestNClust,", nb feuilles = ", leaves, " runtime = ", round((tps4 - tps3)*1000,2),"ms")
 
-print("\n\n TPS TOTAL =", tps2-tps1+tps4-tps3)
+print("\n\n TPS TOTAL =", tps2-tps1+tps4-tps3, "s")
 
 #######################################################################
