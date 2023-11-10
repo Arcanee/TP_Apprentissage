@@ -19,7 +19,7 @@ from sklearn import metrics
 # Exemple :  k-Means Clustering
 
 path = './artificial/'
-name="R15.arff"
+name="square1.arff"
 
 #path_out = './fig/'
 databrut = arff.loadarff(open(path+str(name), 'r'))
@@ -102,10 +102,6 @@ print("nb clusters =",k,", nb iter =",iteration, ", inertie = ",inertie, ", runt
 
 from sklearn.metrics.pairwise import euclidean_distances
 dists = euclidean_distances(centroids)
-print("==dists==")
-print(dists)
-print("==centroids==")
-print(centroids)
 
 
 
@@ -143,33 +139,6 @@ print ("dist max par cluster : ", dmax)
 print ("dist moy par cluster : ", dmoy)
 
 
-# print("\nINTER CLUSTER\n")
-# #DISTANCES ENTRE CLUSTERS
-
-# dmin = []
-# dmax = []
-# dmoy = []
-# for i in range(k):
-#     dmin.append(9999)
-#     dmax.append(0)
-#     dmoy.append(0)
-
-
-# for l in range(k):
-#     for cA in clusters[l]:
-#         for cB in clusters[(l+1)%k]:
-#             dist = np.linalg.norm(cA-cB)
-#             dmin[l] = min(dmin[l], dist)
-#             dmax[l] = max(dmax[l], dist)
-#             dmoy[l] += dist
-
-#     dmoy[l] /= len(clusters[l]) * len(clusters[(l+1)%k])
-
-
-# print ("dist min entre cluster : ", dmin)
-# print ("dist max entre cluster : ", dmax)
-# print ("dist moy entre cluster : ", dmoy)
-
 print("\nINTER CENTRES\n")
 #DISTANCES ENTRE LES CENTRES
 dist_centres = []
@@ -182,7 +151,7 @@ print ("dist max entre les centres : ", max(dist_centres))
 print ("dist moy entre les centres : ", sum(dist_centres)/len(dist_centres))
 
 coef_silhouette = metrics.silhouette_score(datanp, labels)
-print ("coefficient de silhouette : ", coef_silhouette)
+print ("\ncoefficient de silhouette : ", coef_silhouette)
 
 
 
